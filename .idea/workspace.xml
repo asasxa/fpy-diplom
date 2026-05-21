@@ -4,7 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e4c810c9-dd7e-4709-a535-f45ea8f43d0a" name="Changes" comment="" />
+    <list default="true" id="e4c810c9-dd7e-4709-a535-f45ea8f43d0a" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/WORK_README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fry-dip-backend/users/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/fry-dip-backend/users/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fry-dip-frontend/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/fry-dip-frontend/src/App.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fry-dip-frontend/src/components/Navbar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/fry-dip-frontend/src/components/Navbar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fry-dip-frontend/src/store/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/fry-dip-frontend/src/store/index.ts" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -20,21 +27,21 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "asasxa"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;asasxa&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "git@github.com:asasxa/fpy-diplom.git",
-    "accountId": "cba7a081-5100-4e43-879e-f7fdc1867c7c"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;git@github.com:asasxa/fpy-diplom.git&quot;,
+    &quot;accountId&quot;: &quot;cba7a081-5100-4e43-879e-f7fdc1867c7c&quot;
   }
-}]]></component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 6
-}]]></component>
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
   <component name="ProjectId" id="3Dyl3VDJjw98R8M8XZkAKSEHhZU" />
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="1" id="Add" />
@@ -43,13 +50,13 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\дз нетология\fpy-diplom\fry-dip-backend\files" />

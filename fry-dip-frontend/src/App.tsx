@@ -6,6 +6,7 @@ import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { StoragePage } from './pages/StoragePage';
 import { HomePage } from './pages/HomePage';
+import { AdminPage } from './pages/AdminPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { Navbar } from './components/Navbar';
 import { useAppSelector } from './store/hooks';
@@ -36,7 +37,7 @@ function App() {
 
         <Route element={<ProtectedRoute />}>
           <Route path="/storage" element={<StoragePage />} />
-          <Route path="/admin" element={<ProtectedRoute requireAdmin><div style={{padding:'2rem'}}>Админ-панель</div></ProtectedRoute>} />
+          <Route path="/admin" element={<ProtectedRoute requireAdmin><AdminPage /></ProtectedRoute>} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -38,7 +38,7 @@ class LoginView(views.APIView):
         if user:
             login(request, user)
             logger.info(f"Вход: пользователь {username} авторизован")
-            return Response({"message": "Успешная аутентификация", "is_admin": user.is_admin},
+            return Response({"message": "Успешная аутентификация", "is_admin": user.is_admin, "user_id": user.id},
                             status=status.HTTP_200_OK)
 
         logger.warning(f"Отказ во входе: неверные данные для {username}")
@@ -56,29 +56,23 @@ class LogoutView(views.APIView):
 
 class UserListView(generics.ListAPIView):
     serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAdmin]
     queryset = User.objects.all()
 
 
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAdmin]
 
     def destroy(self, request, *args, **kwargs):
-        if not request.user.is_admin:
-            logger.warning(f"Попытка удаления без прав: {request.user.username}")
-            return Response({"error": "Удаление доступно только администратору"}, status=status.HTTP_403_FORBIDDEN)
         instance = self.get_object()
+        if request.user == instance:
+            return Response({"error": "Нельзя удалить самого себя"}, status=status.HTTP_400_BAD_REQUEST)
         instance.delete()
         logger.info(f"Удаление: админ {request.user.username} удалил пользователя {instance.username}")
         return Response({"message": "Пользователь удален"}, status=status.HTTP_200_OK)
 
-    def partial_update(self, request, *args, **kwargs):
-        if not request.user.is_admin:
-            return Response({"error": "Изменение прав доступно только администратору"},
-                            status=status.HTTP_403_FORBIDDEN)
-        return super().partial_update(request, *args, **kwargs)
 
 class CurrentUserView(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
