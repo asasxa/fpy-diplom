@@ -1,143 +1,126 @@
 # ☁️ Облачное хранилище My Cloud
 
-Полноценное SPA-приложение для облачного хранения файлов. Реализовано в архитектуре клиент-сервер с разделением на бэкенд (Django/PostgreSQL) и фронтенд (React/TypeScript). Включает систему аутентификации, управление файлами, административную панель и генерацию обезличенных ссылок для внешнего доступа.
+**Дипломный проект по профессии «Fullstack-разработчик на Python»**  
+**Разработчик:** Сулейманов Руслан ([asasxa](https://github.com/asasxa))
 
-**Разработчик:** Сулейманов Руслан (asasxa)
+## 📝 Описание
+Веб-приложение для облачного хранения и управления файлами. Реализовано в архитектуре SPA (Single Page Application) с разделением на клиентскую (React) и серверную (Django) части. Приложение позволяет пользователям загружать файлы, управлять ими (переименовывание, удаление, предпросмотр), делиться обезличенными ссылками и управлять правами доступа через административную панель.
 
----
+## 🛠 Технологический стек
+| Уровень | Технологии |
+|---------|------------|
+| **Backend** | Python 3.10+, Django 5.x, Django REST Framework, PostgreSQL |
+| **Frontend** | TypeScript, React 18, Redux Toolkit, React Router v6, Vite, Axios |
+| **DevOps / Tools** | Git, pip, npm, Virtualenv, python-dotenv |
 
-## 🚀 Развёртывание проекта
+## 📂 Структура проекта
+```text
+fry-diplom-project/                  # Корень репозитория
+├── README.md                        # Документация
+├── TZ_README.md                     # ТЗ
+├── fry-dip-backend/                 # Серверная часть
+│   ├── files/                       # Приложение управления файлами
+│   ├── users/                       # Приложение пользователей и аутентификации
+│   ├── mycloud/                     # Глобальные настройки (settings, config, urls)
+│   ├── staticfiles/                 # Собранный фронтенд (для продакшена)
+│   ├── storage/                     # Физическое хранилище файлов пользователей
+│   ├── manage.py
+│   ├── requirements.txt
+│   └── .env.example                 # Шаблон переменных окружения
+└── fry-dip-frontend/                # Клиентская часть
+    ├── src/                         # Исходный код (Components, Pages, Store)
+    ├── package.json
+    └── vite.config.ts
+```
 
-Инструкция предназначена для запуска приложения с нуля после клонирования репозитория. Все статические ресурсы и API обслуживаются единым Django-сервером.
-
+## 🚀 Инструкция по развёртыванию и запуску
 ### 1. Клонирование репозитория
 ```bash
 git clone https://github.com/asasxa/fry-diplom-project.git
+```
+```bash
 cd fry-diplom-project
 ```
-2. Настройка базы данных PostgreSQL
-Создайте базу данных и выделенного пользователя:
 
-```SQL
-CREATE DATABASE mycloud_db;
-CREATE USER mycloud_user WITH PASSWORD 'your_secure_password';
-GRANT ALL PRIVILEGES ON DATABASE mycloud_db TO mycloud_user;
-ALTER DATABASE mycloud_db OWNER TO mycloud_user;
+### 2. Настройка Бэкенда
+```bash
+cd fry-dip-backend
+```
+#### Переменные окружения
+Создайте файл .env в папке fry-dip-backend и заполните его данными вашей БД и секретным ключом:
+
+#### ⚠️ Важно: В продакшене установите DEBUG=False и сгенерируйте надёжный SECRET_KEY.
+#### Виртуальное окружение и зависимости
+
+```bash
+# Windows
+python -m venv venv
+```
+```bash
+# Windows
+venv\Scripts\activate.bat
+```
+```bash
+# Если через GIT Bash, то слеш в другую сторону
+venv/Scripts/activate.bat
 ```
 
-3. Настройка и запуск Бэкенда
-Перейдите в директорию бэкенда:
-cd fry-dip-backend
-
-Создайте и активируйте виртуальное окружение:
-# Windows (Git Bash / CMD)
-python -m venv venv
-venv\Scripts\activate.bat
-
+```bash
 # Linux / macOS
 python3 -m venv venv
-source venv/bin/activate
-
-Установите зависимости:
+```
 ```bash
+# Linux / macOS
+source venv/bin/activate
+```
+```bash
+# Установка зависимостей
 pip install -r requirements.txt
 ```
-
-Откройте файл mycloud/config.py и укажите данные вашей БД:
-
-DB_CONFIG = {
-    'NAME': 'mycloud_db',
-    'USER': 'mycloud_user',
-    'PASSWORD': 'your_secure_password',
-    'HOST': 'localhost',
-    'PORT': '5432',
-}
-
-Создайте папку для сборки фронтенда, примените миграции и создайте учётную запись администратора:
-
-mkdir staticfiles
+#### Миграции и суперпользователь
+```bash
 python manage.py migrate
+```
+```bash
 python manage.py createsuperuser
+```
+##### После создания войдите в "админку" Django и поставьте галочку is_admin у пользователя, чтобы ему была доступна панель управления на фронтенде
 
-4. Сборка Фронтенда
-Откройте новый терминал и перейдите в директорию фронтенда:
-
+## Сборка Фронтенда
+##### В новом терминале выполните:
+```bash
 cd fry-dip-frontend
+```
+```bash
 npm install
+```
+```bash
 npm run build
-
-Скопируйте собранные артефакты в папку статики бэкенда:
+```
+### Интеграция и запуск
+##### Скопируйте собранные файлы в папку статики бэкенда:
 # PowerShell (Windows)
-Copy-Item -Path "dist\*" -Destination "..\fry-dip-backend\staticfiles\" -Recurse -Force
-
-# Linux / macOS / Git Bash
-cp -r dist/* ../fry-dip-backend/staticfiles/# PowerShell (Windows)
 Copy-Item -Path "dist\*" -Destination "..\fry-dip-backend\staticfiles\" -Recurse -Force
 
 # Linux / macOS / Git Bash
 cp -r dist/* ../fry-dip-backend/staticfiles/
 
-5. Настройка отдачи SPA в Django
-Чтобы маршрутизация React работала при обновлении страницы, добавьте fallback-вид в корневой роутинг.
-Откройте mycloud/urls.py и добавьте маршрут в конец списка urlpatterns:
-
-
+##### Убедитесь, что в fry-dip-backend/mycloud/urls.py добавлен SPA-fallback (обязательно для работы роутинга React):
 from django.views.generic import TemplateView
-# другие импорты
-
+``` python 
+...
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/users/', include('users.urls')),
     path('api/files/', include('files.urls')),
-    # Fallback для SPA: отдаёт index.html для всех не-API запросов
     path('', TemplateView.as_view(template_name='index.html'), name='spa'),
 ]
+```
 
-
-Убедитесь, что в mycloud/settings.py указаны пути к статике:
-
-import os
-STATICFILES_DIRS = [BASE_DIR / "staticfiles"]
-STATIC_ROOT = BASE_DIR / "static"
-
-6. Запуск приложения
-Вернитесь в папку бэкенда и запустите сервер:
-
-cd fry-dip-backend
+## Запустите сервер:
+```bash 
 python manage.py runserver
-
-Структура проекта
-fry-diplom-project/
-├── README.md                  # Документация
-├── fry-dip-backend/           # Серверная часть
-│   ├── files/                 # Приложение управления файлами
-│   ├── users/                 # Приложение пользователей и аутентификации
-│   ├── mycloud/               # Глобальные настройки и роутинг
-│   ├── staticfiles/           # Собранный фронтенд (копируется после сборки)
-│   ├── storage/               # Физическое хранилище файлов пользователей
-│   ├── manage.py
-│   └── requirements.txt
-└── fry-dip-frontend/          # Клиентская часть
-    ├── src/                   # Исходный код React/TypeScript
-    ├── package.json
-    └── vite.config.ts
-
-
-Реализованный функционал
-Пользовательский интерфейс (SPA)
-Регистрация и вход с валидацией полей (логин, email, пароль)
-Динамическое навигационное меню в зависимости от статуса аутентификации
-Сохранение сессии при обновлении страницы (localStorage + cookie)
-Защищённые маршруты с редиректом на страницу входа
-Файловое хранилище
-Загрузка файлов с комментарием (multipart/form-data)
-Просмотр списка файлов с метаданными (имя, размер, даты, комментарий)
-Переименование файлов и изменение комментария (inline-редактирование)
-Скачивание файлов через авторизованную сессию
-Генерация и копирование обезличенных ссылок (/api/files/special/<uuid>/)
-Скачивание по спецссылке без аутентификации с сохранением оригинального имени
-Административная панель
-Список всех пользователей с признаком is_admin
-Изменение прав доступа (назначение/снятие роли администратора)
-Удаление пользователей (с защитой от самоудаления)
-Просмотр статистики хранилищ пользователей
+```
+```bash 
+python manage.py runserver
+```

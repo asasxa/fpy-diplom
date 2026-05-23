@@ -6,11 +6,14 @@
   <component name="ChangeListManager">
     <list default="true" id="e4c810c9-dd7e-4709-a535-f45ea8f43d0a" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/WORK_README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fry-dip-backend/users/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/fry-dip-backend/users/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fry-dip-frontend/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/fry-dip-frontend/src/App.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/WORK_README.md" beforeDir="false" afterPath="$PROJECT_DIR$/TZ_README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fry-dip-backend/mycloud/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/fry-dip-backend/mycloud/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fry-dip-backend/mycloud/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/fry-dip-backend/mycloud/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fry-dip-backend/users/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/fry-dip-backend/users/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/fry-dip-frontend/src/components/Navbar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/fry-dip-frontend/src/components/Navbar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fry-dip-frontend/src/store/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/fry-dip-frontend/src/store/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fry-dip-frontend/src/pages/AdminPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/fry-dip-frontend/src/pages/AdminPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fry-dip-frontend/src/pages/StoragePage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/fry-dip-frontend/src/pages/StoragePage.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

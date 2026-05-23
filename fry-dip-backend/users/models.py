@@ -15,7 +15,7 @@ class User(AbstractUser):
     )
     full_name = models.CharField('полное имя', max_length=100)
     is_admin = models.BooleanField('администратор', default=False)
-    storage_path = models.CharField('путь к хранилищу', max_length=255, unique=True, blank=True)
+    storage_path = models.CharField('путь к хранилищу', max_length=255, unique=True, default='')
 
     def save(self, *args, **kwargs):
         if not self.storage_path:

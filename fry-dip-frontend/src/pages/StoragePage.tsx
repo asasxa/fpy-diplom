@@ -42,7 +42,6 @@ export const StoragePage = () => {
       id: editingId,
       data: { original_name: editName, comment: editComment }
     }));
-
     if (updateFile.fulfilled.match(result)) {
       setEditingId(null);
     } else {
@@ -64,7 +63,6 @@ export const StoragePage = () => {
         responseType: 'blob',
         withCredentials: true,
       });
-
       const blob = new Blob([response.data], { type: response.headers['content-type'] || 'application/octet-stream' });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -81,6 +79,29 @@ export const StoragePage = () => {
         alert('Ошибка скачивания: ' + (err.response?.data?.detail || err.message));
       }
       console.error('Download error:', err);
+    }
+  };
+
+  const handlePreview = async (file: FileItem) => {
+    try {
+      const response = await api.get(`/files/${file.id}/download/`, { responseType: 'blob' });
+      const contentType = response.headers['content-type'] || '';
+      const blob = new Blob([response.data], { type: contentType });
+      const url = window.URL.createObjectURL(blob);
+
+      if (contentType.startsWith('image/') || contentType === 'application/pdf') {
+        window.open(url, '_blank');
+      } else {
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', file.original_name);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      }
+      window.URL.revokeObjectURL(url);
+    } catch (err: any) {
+      alert('Ошибка предпросмотра: ' + (err.response?.data?.detail || err.message));
     }
   };
 
@@ -128,6 +149,7 @@ export const StoragePage = () => {
                   <td style={styles.td}>{formatDate(f.uploaded_at)}</td>
                   <td style={styles.td}>{f.last_downloaded_at ? formatDate(f.last_downloaded_at) : '—'}</td>
                   <td style={{ ...styles.td, display: 'flex', gap: '0.5rem' }}>
+                    <button onClick={() => handlePreview(f)} style={styles.btnAction} title="Предпросмотр">👁️</button>
                     <button onClick={() => handleDownload(f)} style={styles.btnAction} title="Скачать">⬇️</button>
                     <button onClick={() => handleStartEdit(f)} style={styles.btnAction} title="Редактировать">✏️</button>
                     <button onClick={() => handleDelete(f.id)} style={styles.btnAction} title="Удалить">🗑️</button>

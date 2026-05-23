@@ -1,15 +1,17 @@
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { fetchUsers, deleteUser, updateAdminStatus } from '../store/slices/usersSlice';
+import { User } from '../store/slices/usersSlice';
 
 export const AdminPage = () => {
   const { items, status, error } = useAppSelector(state => state.users);
-  const currentUser = useAppSelector(state => state.auth);
+  const currentUserUsername = useAppSelector(state => state.auth.username || '');
+
   const dispatch = useAppDispatch();
 
   useEffect(() => { dispatch(fetchUsers()); }, [dispatch]);
 
-  const handleToggleAdmin = (user: any) => {
+  const handleToggleAdmin = (user: User) => {
     dispatch(updateAdminStatus({ id: user.id, is_admin: !user.is_admin }));
   };
 
@@ -44,13 +46,13 @@ export const AdminPage = () => {
                   type="checkbox"
                   checked={u.is_admin}
                   onChange={() => handleToggleAdmin(u)}
-                  disabled={u.id === (currentUser as any).id}
+                  disabled={u.username === currentUserUsername}
                 />
               </td>
               <td style={styles.td}>
                 <button
                   onClick={() => handleDelete(u.id)}
-                  disabled={u.id === (currentUser as any).id}
+                  disabled={u.username === currentUserUsername}
                   style={styles.btnAction}
                 >
                   🗑️
