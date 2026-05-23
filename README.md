@@ -106,8 +106,8 @@ Copy-Item -Path "dist\*" -Destination "..\fry-dip-backend\staticfiles\" -Recurse
 cp -r dist/* ../fry-dip-backend/staticfiles/
 
 ##### Убедитесь, что в fry-dip-backend/mycloud/urls.py добавлен SPA-fallback (обязательно для работы роутинга React):
-from django.views.generic import TemplateView
 ``` python 
+from django.views.generic import TemplateView
 ...
 urlpatterns = [
     path('admin/', admin.site.urls),
