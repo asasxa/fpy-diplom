@@ -1,0 +1,38 @@
+# === ГЛОБАЛЬНЫЕ ИГНОРЫ ===
+# Файлы IDE (PyCharm, VS Code и др.)
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Файлы операционной системы
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Переменные окружения (секреты)
+.env
+.env.local
+
+# === БЭКЕНД (Django) ===
+# Виртуальное окружение
+fry-dip-backend/venv/
+fry-dip-backend/env/
+
+# Python
+fry-dip-backend/__pycache__/
+fry-dip-backend/*/__pycache__/
+fry-dip-backend/*.pyc
+
+# Django media, static, storage
+fry-dip-backend/media/
+fry-dip-backend/storage/
+fry-dip-backend/staticfiles/
+
+# === ФРОНТЕНД (React) ===
+# Node_modules
+fry-dip-frontend/node_modules/
+
+# Сборка (Build artifacts)
+fry-dip-frontend/dist/
+fry-dip-frontend/build/
