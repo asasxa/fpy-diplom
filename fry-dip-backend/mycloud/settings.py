@@ -90,13 +90,17 @@ REST_FRAMEWORK = {
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
-    "http://127.0.0.1:5173",
+    'http://127.0.0.1:5173',
+    "http://194.67.121.233",
+    "https://194.67.121.233"
 ]
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
-    "http://127.0.0.1:5173",
+    'http://127.0.0.1:5173',
+    "http://194.67.121.233",
+    "https://194.67.121.233"
 ]
-CSRF_COOKIE_HTTPONLY = False
+CSRF_COOKIE_HTTPONLY = True
 
 
 LOGGING = {
@@ -120,3 +124,8 @@ LOGGING = {
         'level': 'INFO',
     },
 }
+
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SAMESITE = 'Lax'
