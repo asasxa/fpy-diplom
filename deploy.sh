@@ -1,28 +1,37 @@
 #!/bin/bash
 set -e
 
-echo "Обновление кода"
-cd ~/fpy-diplom && git pull origin main
+PROJECT_DIR="/home/asasxa/fpy-diplom"
+BACKEND_DIR="$PROJECT_DIR/fry-dip-backend"
+FRONTEND_DIR="$PROJECT_DIR/fry-dip-frontend"
+DEPLOY_DIR="/var/www/mycloud"
+BRANCH="main"
 
-echo "Обновление бэкенда"
-cd fry-dip-backend
-source venv/bin/activate
+cd "$PROJECT_DIR"
+git pull origin "$BRANCH"
+
+cd "$BACKEND_DIR"
+if [ -d "venv" ]; then
+    source venv/bin/activate
+else
+    python3 -m venv venv
+    source venv/bin/activate
+fi
+
 pip install -r requirements.txt -q
 python manage.py migrate --noinput
 python manage.py collectstatic --noinput
 
-echo "Сборка фронтенда"
-cd ../fry-dip-frontend
-npm ci --silent
+cd "$FRONTEND_DIR"
+npm ci --silent || npm install --silent
 npm run build
-sudo rm -rf /var/www/mycloud/*
-sudo cp -r dist/* /var/www/mycloud/
-sudo chown -R www-data:www-data /var/www/mycloud
 
-echo "Перезапуск сервисов"
-cd ../fry-dip-backend
+sudo rm -rf "$DEPLOY_DIR"/*
+sudo cp -r dist/* "$DEPLOY_DIR/"
+sudo chown -R www-data:www-data "$DEPLOY_DIR"
+
+cd "$BACKEND_DIR"
 sudo supervisorctl restart mycloud
 sudo systemctl restart nginx
 
-echo "Обновление завершено!"
 deactivate
