@@ -2,6 +2,7 @@ import os
 import uuid
 import logging
 import traceback
+import mimetypes
 from django.conf import settings
 from django.http import FileResponse
 from django.utils import timezone
@@ -127,7 +128,8 @@ class FileDownloadView(views.APIView):
             logger.info(f"Download: пользователь {request.user.username} скачал {file_obj.original_name}")
 
             is_preview = request.query_params.get('preview') == '1'
-            content_type = file_obj.content_type or 'application/octet-stream'
+            mime_type = mimetypes.guess_type(full_path)[0]
+            content_type = mime_type or 'application/octet-stream'
 
             return FileResponse(
                 open(full_path, 'rb'),
@@ -165,10 +167,13 @@ class SpecialLinkDownloadView(views.APIView):
             file_obj.last_downloaded_at = timezone.now()
             file_obj.save()
             logger.info(f"Special Download: скачивание по ссылке {link} файла {file_obj.original_name}")
+            mime_type = mimetypes.guess_type(full_path)[0]
+            content_type = mime_type or 'application/octet-stream'
             return FileResponse(
                 open(full_path, 'rb'),
                 as_attachment=True,
-                filename=file_obj.original_name
+                filename=file_obj.original_name,
+                content_type=content_type
             )
         except PermissionError:
             return Response({"error": "Нет прав доступа к файлу (PermissionError)", "error_type": "PermissionError"}, status=status.HTTP_403_FORBIDDEN)
