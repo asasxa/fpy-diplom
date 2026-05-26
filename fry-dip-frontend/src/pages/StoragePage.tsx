@@ -73,27 +73,8 @@ export const StoragePage = () => {
     }
   };
 
-  const handlePreview = async (file: FileItem) => {
-    try {
-      const response = await api.get(`/files/${file.id}/download/`, { responseType: 'blob' });
-      const contentType = (response.headers['content-type'] as string) || 'application/octet-stream';
-      const blob = new Blob([response.data], { type: contentType });
-      const url = window.URL.createObjectURL(blob);
-
-      if (contentType.startsWith('image/') || contentType === 'application/pdf') {
-        window.open(url, '_blank');
-      } else {
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', file.original_name);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-      }
-      window.URL.revokeObjectURL(url);
-    } catch (err: any) {
-      alert('Ошибка предпросмотра: ' + (err.response?.data?.detail || err.message));
-    }
+  const handlePreview = (file: FileItem) =>
+    window.open(`/api/files/${file.id}/download/?preview=1`, '_blank');
   };
 
   if (status === 'loading' && items.length === 0) return <div style={{padding:'2rem'}}>Загрузка хранилища...</div>;
