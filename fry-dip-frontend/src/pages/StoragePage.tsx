@@ -38,10 +38,7 @@ export const StoragePage = () => {
 
   const handleSaveEdit = async () => {
     if (!editingId) return;
-    const result = await dispatch(updateFile({
-      id: editingId,
-      data: { original_name: editName, comment: editComment }
-    }));
+    const result = await dispatch(updateFile({ id: editingId, data: { original_name: editName, comment: editComment } }));
     if (updateFile.fulfilled.match(result)) {
       setEditingId(null);
     } else {
@@ -59,11 +56,9 @@ export const StoragePage = () => {
 
   const handleDownload = async (file: FileItem) => {
     try {
-      const response = await api.get(`/files/${file.id}/download/`, {
-        responseType: 'blob',
-        withCredentials: true,
-      });
-      const blob = new Blob([response.data], { type: response.headers['content-type'] || 'application/octet-stream' });
+      const response = await api.get(`/files/${file.id}/download/`, { responseType: 'blob', withCredentials: true });
+      const contentType = (response.headers['content-type'] as string) || 'application/octet-stream';
+      const blob = new Blob([response.data], { type: contentType });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -73,19 +68,15 @@ export const StoragePage = () => {
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch (err: any) {
-      if (err.response?.status === 401) {
-        alert('Сессия истекла или не найдена. Пожалуйста, выйдите и войдите снова.');
-      } else {
-        alert('Ошибка скачивания: ' + (err.response?.data?.detail || err.message));
-      }
-      console.error('Download error:', err);
+      if (err.response?.status === 401) alert('Сессия истекла или не найдена. Пожалуйста, выйдите и войдите снова.');
+      else alert('Ошибка скачивания: ' + (err.response?.data?.detail || err.message));
     }
   };
 
   const handlePreview = async (file: FileItem) => {
     try {
       const response = await api.get(`/files/${file.id}/download/`, { responseType: 'blob' });
-      const contentType = response.headers['content-type'] || '';
+      const contentType = (response.headers['content-type'] as string) || 'application/octet-stream';
       const blob = new Blob([response.data], { type: contentType });
       const url = window.URL.createObjectURL(blob);
 
@@ -111,13 +102,10 @@ export const StoragePage = () => {
   return (
     <div style={{ padding: '2rem', maxWidth: '1100px', margin: '0 auto' }}>
       <h2 style={{ marginBottom: '1.5rem' }}>Моё хранилище</h2>
-
       <form onSubmit={handleUpload} style={{ marginBottom: '2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', background: '#f8f9fa', padding: '1rem', borderRadius: '8px' }}>
         <input type="file" onChange={e => setSelected(e.target.files?.[0] || null)} required style={{ flex: '1 1 300px' }} />
         <input placeholder="Комментарий к файлу" value={comment} onChange={e => setComment(e.target.value)} style={{ flex: '2 1 300px' }} />
-        <button type="submit" disabled={uploading} style={styles.btn}>
-          {uploading ? 'Загрузка...' : 'Загрузить файл'}
-        </button>
+        <button type="submit" disabled={uploading} style={styles.btn}>{uploading ? 'Загрузка...' : 'Загрузить файл'}</button>
       </form>
 
       <table style={{ width: '100%', borderCollapse: 'collapse', background: '#fff' }}>
@@ -159,9 +147,7 @@ export const StoragePage = () => {
               )}
             </tr>
           ))}
-          {items.length === 0 && (
-            <tr><td colSpan={6} style={{ textAlign: 'center', padding: '3rem', color: '#6c757d' }}>Хранилище пусто. Загрузите первый файл!</td></tr>
-          )}
+          {items.length === 0 && <tr><td colSpan={6} style={{ textAlign: 'center', padding: '3rem', color: '#6c757d' }}>Хранилище пусто. Загрузите первый файл!</td></tr>}
         </tbody>
       </table>
     </div>

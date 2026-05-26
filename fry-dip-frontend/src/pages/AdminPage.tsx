@@ -1,12 +1,10 @@
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { fetchUsers, deleteUser, updateAdminStatus } from '../store/slices/usersSlice';
-import { User } from '../store/slices/usersSlice';
+import { fetchUsers, deleteUser, updateAdminStatus, User } from '../store/slices/usersSlice';
 
 export const AdminPage = () => {
   const { items, status, error } = useAppSelector(state => state.users);
-  const currentUserUsername = useAppSelector(state => state.auth.username || '');
-
+  const currentUsername = useAppSelector(state => (state.auth as any).username || '');
   const dispatch = useAppDispatch();
 
   useEffect(() => { dispatch(fetchUsers()); }, [dispatch]);
@@ -42,21 +40,10 @@ export const AdminPage = () => {
               <td style={styles.td}>{u.full_name}</td>
               <td style={styles.td}>{u.email}</td>
               <td style={styles.td}>
-                <input
-                  type="checkbox"
-                  checked={u.is_admin}
-                  onChange={() => handleToggleAdmin(u)}
-                  disabled={u.username === currentUserUsername}
-                />
+                <input type="checkbox" checked={u.is_admin} onChange={() => handleToggleAdmin(u)} disabled={u.username === currentUsername} />
               </td>
               <td style={styles.td}>
-                <button
-                  onClick={() => handleDelete(u.id)}
-                  disabled={u.username === currentUserUsername}
-                  style={styles.btnAction}
-                >
-                  🗑️
-                </button>
+                <button onClick={() => handleDelete(u.id)} disabled={u.username === currentUsername} style={styles.btnAction}>🗑️</button>
               </td>
             </tr>
           ))}
@@ -67,7 +54,7 @@ export const AdminPage = () => {
   );
 };
 
-const styles = {
+const styles: Record<string, React.CSSProperties> = {
   th: { textAlign: 'left', padding: '0.75rem', background: '#f8f9fa' },
   td: { padding: '0.75rem' },
   btnAction: { background: 'transparent', border: '1px solid #dc3545', color: '#dc3545', borderRadius: '4px', cursor: 'pointer', padding: '0.3rem 0.5rem' }

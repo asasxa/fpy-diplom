@@ -1,63 +1,68 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import api from '../api/client';
-import { ValidationError } from '../types';
+
+interface ValidationError {
+  [key: string]: string | string[];
+}
 
 export const RegisterPage = () => {
-  const [form, setForm] = useState({ username: '', full_name: '', email: '', password: '' });
+  const [form, setForm] = useState({ username: '', full_name: '', email: '', password: '', confirm_password: '' });
   const [errors, setErrors] = useState<ValidationError>({});
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const validate = () => {
-    const errs: ValidationError = {};
-    if (!/^[a-zA-Z][a-zA-Z0-9]{3,19}$/.test(form.username)) errs.username = 'Логин: 4-20 символов, начинается с буквы, только латиница и цифры';
-    if (!/^\S+@\S+\.\S+$/.test(form.email)) errs.email = 'Некорректный email';
-    if (!/^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?\":{}|<>]).{6,}$/.test(form.password))
-      errs.password = 'Мин. 6 символов: заглавная, цифра, спецсимвол';
-    return errs;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    if (errors[e.target.name]) setErrors(prev => ({ ...prev, [e.target.name]: '' }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const v = validate();
-    setErrors(v);
-    if (Object.keys(v).length) return;
-
     setLoading(true);
     try {
       await api.post('/users/register/', form);
-      navigate('/login', { state: { success: 'Регистрация успешна. Войдите.' } });
+      navigate('/login');
     } catch (err: any) {
-      setErrors(err.response?.data || { error: 'Ошибка регистрации' });
+      if (err.response?.status === 400) setErrors(err.response.data);
+      else setErrors({ form: 'Ошибка сети или сервера' });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-    if (errors[e.target.name]) setErrors(prev => ({ ...prev, [e.target.name]: undefined }));
-  };
-
   return (
-    <div style={styles.container}>
-      <h2>Регистрация</h2>
-      <form onSubmit={handleSubmit} style={styles.form}>
-        {['username', 'full_name', 'email', 'password'].map(field => (
-          <div key={field}>
-            <input name={field} style={styles.input} placeholder={field === 'full_name' ? 'Полное имя' : field}
-              type={field === 'password' ? 'password' : 'text'} value={(form as any)[field]} onChange={handleChange} required />
-            {(errors as any)[field] && <p style={styles.error}>{(errors as any)[field]}</p>}
-          </div>
-        ))}
-        <button type="submit" disabled={loading} style={styles.btn}>
-          {loading ? 'Создание...' : 'Зарегистрироваться'}
-        </button>
-        <p>Уже есть аккаунт? <Link to="/login">Войти</Link></p>
+    <div style={{ maxWidth: '400px', margin: '3rem auto', padding: '2rem', background: '#fff', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+      <h2 style={{ marginBottom: '1.5rem', textAlign: 'center' }}>Регистрация</h2>
+      <form onSubmit={handleSubmit}>
+        <div style={{ marginBottom: '1rem' }}>
+          <input name="username" placeholder="Логин" value={form.username} onChange={handleChange} style={styles.input} required />
+          {errors.username && <div style={styles.error}>{Array.isArray(errors.username) ? errors.username.join(', ') : errors.username}</div>}
+        </div>
+        <div style={{ marginBottom: '1rem' }}>
+          <input name="full_name" placeholder="Полное имя" value={form.full_name} onChange={handleChange} style={styles.input} required />
+          {errors.full_name && <div style={styles.error}>{Array.isArray(errors.full_name) ? errors.full_name.join(', ') : errors.full_name}</div>}
+        </div>
+        <div style={{ marginBottom: '1rem' }}>
+          <input name="email" type="email" placeholder="Email" value={form.email} onChange={handleChange} style={styles.input} required />
+          {errors.email && <div style={styles.error}>{Array.isArray(errors.email) ? errors.email.join(', ') : errors.email}</div>}
+        </div>
+        <div style={{ marginBottom: '1rem' }}>
+          <input name="password" type="password" placeholder="Пароль" value={form.password} onChange={handleChange} style={styles.input} required />
+          {errors.password && <div style={styles.error}>{Array.isArray(errors.password) ? errors.password.join(', ') : errors.password}</div>}
+        </div>
+        <div style={{ marginBottom: '1.5rem' }}>
+          <input name="confirm_password" type="password" placeholder="Подтвердите пароль" value={form.confirm_password} onChange={handleChange} style={styles.input} required />
+        </div>
+        {errors.form && <div style={{...styles.error, marginBottom:'1rem'}}>{errors.form}</div>}
+        <button type="submit" disabled={loading} style={styles.btn}>{loading ? 'Регистрация...' : 'Зарегистрироваться'}</button>
       </form>
     </div>
   );
 };
 
-const styles = { container: { maxWidth: '400px', margin: '2rem auto', padding: '2rem', border: '1px solid #ddd', borderRadius: '8px' }, form: { display: 'flex', flexDirection: 'column' as const, gap: '0.5rem' }, input: { padding: '0.75rem', fontSize: '1rem', border: '1px solid #ccc', borderRadius: '4px' }, btn: { padding: '0.75rem', background: '#198754', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }, error: { color: '#dc3545', margin: '0.25rem 0 0', fontSize: '0.8rem' } };
+const styles = {
+  input: { width: '100%', padding: '0.75rem', marginBottom: '0.25rem', border: '1px solid #ced4da', borderRadius: '4px', boxSizing: 'border-box' as const },
+  btn: { width: '100%', padding: '0.75rem', background: '#0d6efd', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '1rem' },
+  error: { color: '#dc3545', fontSize: '0.85rem', marginTop: '0.25rem' }
+};
