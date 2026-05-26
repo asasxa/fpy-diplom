@@ -26,7 +26,7 @@ if not SECRET_KEY and not os.environ.get('DEBUG', 'True').lower() == 'true':
     raise ImproperlyConfigured("SECRET_KEY must be set in production!")
 
 DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = [host.strip() for host in os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')]
 
 
 if not DEBUG:
