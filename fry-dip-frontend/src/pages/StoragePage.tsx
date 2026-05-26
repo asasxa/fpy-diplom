@@ -73,8 +73,8 @@ export const StoragePage = () => {
     }
   };
 
-  const handlePreview = (file: FileItem) =>
-    window.open(`/api/files/${file.id}/download/?preview=1`, '_blank');
+  const handlePreview = (file: FileItem) => {
+  window.open(`/api/files/${file.id}/download/?preview=1`, '_blank');
   };
 
   if (status === 'loading' && items.length === 0) return <div style={{padding:'2rem'}}>Загрузка хранилища...</div>;
