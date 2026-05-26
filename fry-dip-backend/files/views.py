@@ -69,7 +69,11 @@ class FileUploadView(views.APIView):
             return Response(FileSerializer(file_obj, context={'request': request}).data, status=status.HTTP_201_CREATED)
         except Exception as e:
             logger.error(f"Ошибка загрузки файла: {e}\n{traceback.format_exc()}")
-            return Response({"error": "Ошибка сервера при загрузке"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            error_response = {"error": "Ошибка сервера при загрузке", "error_type": type(e).__name__}
+            if settings.DEBUG:
+                error_response["details"] = str(e)
+                error_response["traceback"] = traceback.format_exc().split('\n')
+            return Response(error_response, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class FileDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -93,7 +97,11 @@ class FileDetailView(generics.RetrieveUpdateDestroyAPIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
             logger.error(f"Ошибка удаления файла {kwargs.get('pk')}: {e}\n{traceback.format_exc()}")
-            return Response({"error": "Ошибка при удалении файла"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            error_response = {"error": "Ошибка при удалении файла", "error_type": type(e).__name__}
+            if settings.DEBUG:
+                error_response["details"] = str(e)
+                error_response["traceback"] = traceback.format_exc().split('\n')
+            return Response(error_response, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class FileDownloadView(views.APIView):
@@ -108,7 +116,9 @@ class FileDownloadView(views.APIView):
         self.check_object_permissions(request, file_obj)
 
         full_path = os.path.join(settings.STORAGE_BASE_DIR, file_obj.file_path)
-        if not os.path.exists(full_path):
+        full_path = os.path.normpath(full_path)
+
+        if not os.path.isfile(full_path):
             return Response({"error": "Файл отсутствует на диске"}, status=status.HTTP_404_NOT_FOUND)
 
         try:
@@ -125,9 +135,15 @@ class FileDownloadView(views.APIView):
                 filename=file_obj.original_name if not is_preview else None,
                 content_type=content_type
             )
+        except PermissionError:
+            return Response({"error": "Нет прав доступа к файлу (PermissionError)", "error_type": "PermissionError"}, status=status.HTTP_403_FORBIDDEN)
         except Exception as e:
             logger.error(f"Ошибка скачивания файла {pk}: {e}\n{traceback.format_exc()}")
-            return Response({"error": "Ошибка при чтении файла"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            error_response = {"error": "Ошибка при чтении файла", "error_type": type(e).__name__}
+            if settings.DEBUG:
+                error_response["details"] = str(e)
+                error_response["traceback"] = traceback.format_exc().split('\n')
+            return Response(error_response, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class SpecialLinkDownloadView(views.APIView):
@@ -140,7 +156,9 @@ class SpecialLinkDownloadView(views.APIView):
             return Response({"error": "Ссылка недействительна"}, status=status.HTTP_404_NOT_FOUND)
 
         full_path = os.path.join(settings.STORAGE_BASE_DIR, file_obj.file_path)
-        if not os.path.exists(full_path):
+        full_path = os.path.normpath(full_path)
+
+        if not os.path.isfile(full_path):
             return Response({"error": "Файл отсутствует на диске"}, status=status.HTTP_404_NOT_FOUND)
 
         try:
@@ -152,6 +170,12 @@ class SpecialLinkDownloadView(views.APIView):
                 as_attachment=True,
                 filename=file_obj.original_name
             )
+        except PermissionError:
+            return Response({"error": "Нет прав доступа к файлу (PermissionError)", "error_type": "PermissionError"}, status=status.HTTP_403_FORBIDDEN)
         except Exception as e:
             logger.error(f"Ошибка скачивания по спецссылке {link}: {e}\n{traceback.format_exc()}")
-            return Response({"error": "Ошибка при чтении файла"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            error_response = {"error": "Ошибка при чтении файла", "error_type": type(e).__name__}
+            if settings.DEBUG:
+                error_response["details"] = str(e)
+                error_response["traceback"] = traceback.format_exc().split('\n')
+            return Response(error_response, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
