@@ -1,6 +1,7 @@
 import os
 import uuid
 import logging
+import traceback
 from django.conf import settings
 from django.http import FileResponse
 from django.utils import timezone
@@ -38,36 +39,37 @@ class FileUploadView(views.APIView):
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request):
-        serializer = FileUploadSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        try:
+            serializer = FileUploadSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
 
-        uploaded_file = serializer.validated_data['file']
-        comment = serializer.validated_data.get('comment', '')
+            uploaded_file = serializer.validated_data['file']
+            comment = serializer.validated_data.get('comment', '')
 
-        # Уникальное имя файла на диске
-        ext = os.path.splitext(uploaded_file.name)[1]
-        unique_name = f"{uuid.uuid4()}{ext}"
+            ext = os.path.splitext(uploaded_file.name)[1]
+            unique_name = f"{uuid.uuid4()}{ext}"
 
-        # Папка хранилища пользователя
-        user_dir = os.path.join(settings.STORAGE_BASE_DIR, request.user.storage_path)
-        os.makedirs(user_dir, exist_ok=True)
+            user_dir = os.path.join(settings.STORAGE_BASE_DIR, request.user.storage_path)
+            os.makedirs(user_dir, exist_ok=True)
 
-        full_path = os.path.join(user_dir, unique_name)
-        with open(full_path, 'wb+') as dest:
-            for chunk in uploaded_file.chunks():
-                dest.write(chunk)
+            full_path = os.path.join(user_dir, unique_name)
+            with open(full_path, 'wb+') as dest:
+                for chunk in uploaded_file.chunks():
+                    dest.write(chunk)
 
-        # Сохраняем путь относительно базовой директории
-        rel_path = os.path.relpath(full_path, settings.STORAGE_BASE_DIR)
-        file_obj = File.objects.create(
-            owner=request.user,
-            original_name=uploaded_file.name,
-            size=uploaded_file.size,
-            comment=comment,
-            file_path=rel_path
-        )
-        logger.info(f"Upload: пользователь {request.user.username} загрузил {uploaded_file.name}")
-        return Response(FileSerializer(file_obj, context={'request': request}).data, status=status.HTTP_201_CREATED)
+            rel_path = os.path.relpath(full_path, settings.STORAGE_BASE_DIR)
+            file_obj = File.objects.create(
+                owner=request.user,
+                original_name=uploaded_file.name,
+                size=uploaded_file.size,
+                comment=comment,
+                file_path=rel_path
+            )
+            logger.info(f"Upload: пользователь {request.user.username} загрузил {uploaded_file.name}")
+            return Response(FileSerializer(file_obj, context={'request': request}).data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            logger.error(f"Ошибка загрузки файла: {e}\n{traceback.format_exc()}")
+            return Response({"error": "Ошибка сервера при загрузке"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class FileDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -81,13 +83,17 @@ class FileDetailView(generics.RetrieveUpdateDestroyAPIView):
         return {'request': self.request}
 
     def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        full_path = os.path.join(settings.STORAGE_BASE_DIR, instance.file_path)
-        if os.path.exists(full_path):
-            os.remove(full_path)
-        instance.delete()
-        logger.info(f"Delete: пользователь {request.user.username} удалил файл {instance.id}")
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        try:
+            instance = self.get_object()
+            full_path = os.path.join(settings.STORAGE_BASE_DIR, instance.file_path)
+            if os.path.exists(full_path):
+                os.remove(full_path)
+            instance.delete()
+            logger.info(f"Delete: пользователь {request.user.username} удалил файл {instance.id}")
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Exception as e:
+            logger.error(f"Ошибка удаления файла {kwargs.get('pk')}: {e}\n{traceback.format_exc()}")
+            return Response({"error": "Ошибка при удалении файла"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class FileDownloadView(views.APIView):
@@ -105,10 +111,23 @@ class FileDownloadView(views.APIView):
         if not os.path.exists(full_path):
             return Response({"error": "Файл отсутствует на диске"}, status=status.HTTP_404_NOT_FOUND)
 
-        file_obj.last_downloaded_at = timezone.now()
-        file_obj.save()
-        logger.info(f"Download: пользователь {request.user.username} скачал {file_obj.original_name}")
-        return FileResponse(open(full_path, 'rb'), as_attachment=True, filename=file_obj.original_name)
+        try:
+            file_obj.last_downloaded_at = timezone.now()
+            file_obj.save()
+            logger.info(f"Download: пользователь {request.user.username} скачал {file_obj.original_name}")
+
+            is_preview = request.query_params.get('preview') == '1'
+            content_type = file_obj.content_type or 'application/octet-stream'
+
+            return FileResponse(
+                open(full_path, 'rb'),
+                as_attachment=not is_preview,
+                filename=file_obj.original_name if not is_preview else None,
+                content_type=content_type
+            )
+        except Exception as e:
+            logger.error(f"Ошибка скачивания файла {pk}: {e}\n{traceback.format_exc()}")
+            return Response({"error": "Ошибка при чтении файла"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class SpecialLinkDownloadView(views.APIView):
@@ -124,7 +143,15 @@ class SpecialLinkDownloadView(views.APIView):
         if not os.path.exists(full_path):
             return Response({"error": "Файл отсутствует на диске"}, status=status.HTTP_404_NOT_FOUND)
 
-        file_obj.last_downloaded_at = timezone.now()
-        file_obj.save()
-        logger.info(f"Special Download: скачивание по ссылке {link} файла {file_obj.original_name}")
-        return FileResponse(open(full_path, 'rb'), as_attachment=True, filename=file_obj.original_name)
+        try:
+            file_obj.last_downloaded_at = timezone.now()
+            file_obj.save()
+            logger.info(f"Special Download: скачивание по ссылке {link} файла {file_obj.original_name}")
+            return FileResponse(
+                open(full_path, 'rb'),
+                as_attachment=True,
+                filename=file_obj.original_name
+            )
+        except Exception as e:
+            logger.error(f"Ошибка скачивания по спецссылке {link}: {e}\n{traceback.format_exc()}")
+            return Response({"error": "Ошибка при чтении файла"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
