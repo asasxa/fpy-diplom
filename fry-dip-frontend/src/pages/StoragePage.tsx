@@ -5,18 +5,20 @@ import { formatBytes, formatDate } from '../utils/format';
 import api from '../api/client';
 
 export const StoragePage = () => {
-  const { items, status, error } = useAppSelector(state => state.files);
+  const { items, status, error, next, previous } = useAppSelector(state => state.files);
   const dispatch = useAppDispatch();
 
   const [selectedFile, setSelected] = useState<File | null>(null);
   const [comment, setComment] = useState('');
   const [uploading, setUploading] = useState(false);
-
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editName, setEditName] = useState('');
   const [editComment, setEditComment] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
 
-  useEffect(() => { dispatch(fetchFiles()); }, [dispatch]);
+  useEffect(() => {
+    dispatch(fetchFiles({ page: currentPage }));
+  }, [dispatch, currentPage]);
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,7 +76,7 @@ export const StoragePage = () => {
   };
 
   const handlePreview = (file: FileItem) => {
-  window.open(`/api/files/${file.id}/download/?preview=1`, '_blank');
+    window.open(`/api/files/${file.id}/download/?preview=1`, '_blank');
   };
 
   if (status === 'loading' && items.length === 0) return <div style={{padding:'2rem'}}>Загрузка хранилища...</div>;
@@ -131,6 +133,24 @@ export const StoragePage = () => {
           {items.length === 0 && <tr><td colSpan={6} style={{ textAlign: 'center', padding: '3rem', color: '#6c757d' }}>Хранилище пусто. Загрузите первый файл!</td></tr>}
         </tbody>
       </table>
+
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', marginTop: '1.5rem' }}>
+        <button
+          onClick={() => setCurrentPage(p => p - 1)}
+          disabled={!previous || status === 'loading'}
+          style={{ ...styles.btn, opacity: !previous || status === 'loading' ? 0.5 : 1 }}
+        >
+          ← Назад
+        </button>
+        <span style={{ padding: '0.5rem', fontWeight: 500 }}>Страница {currentPage}</span>
+        <button
+          onClick={() => setCurrentPage(p => p + 1)}
+          disabled={!next || status === 'loading'}
+          style={{ ...styles.btn, opacity: !next || status === 'loading' ? 0.5 : 1 }}
+        >
+          Вперёд →
+        </button>
+      </div>
     </div>
   );
 };

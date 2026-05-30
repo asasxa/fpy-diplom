@@ -13,23 +13,36 @@ export interface FileItem {
   download_url: string;
 }
 
+export interface PaginatedFilesResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: FileItem[];
+}
+
 interface FilesState {
   items: FileItem[];
+  count: number;
+  next: string | null;
+  previous: string | null;
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
 }
 
 const initialState: FilesState = {
   items: [],
+  count: 0,
+  next: null,
+  previous: null,
   status: 'idle',
   error: null,
 };
 
-export const fetchFiles = createAsyncThunk<FileItem[], void, { rejectValue: ApiError }>(
+export const fetchFiles = createAsyncThunk<PaginatedFilesResponse, { page?: number }, { rejectValue: ApiError }>(
   'files/fetchFiles',
-  async (_, { rejectWithValue }) => {
+  async ({ page = 1 }, { rejectWithValue }) => {
     try {
-      const res = await api.get('/files/');
+      const res = await api.get('/files/', { params: { page } });
       return res.data;
     } catch (err: any) {
       return rejectWithValue(err.response?.data || { error: 'Ошибка загрузки списка файлов' });
@@ -97,7 +110,10 @@ const filesSlice = createSlice({
       })
       .addCase(fetchFiles.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.items = action.payload;
+        state.items = action.payload.results;
+        state.count = action.payload.count;
+        state.next = action.payload.next;
+        state.previous = action.payload.previous;
       })
       .addCase(fetchFiles.rejected, (state, action) => {
         state.status = 'failed';
@@ -105,9 +121,11 @@ const filesSlice = createSlice({
       })
       .addCase(uploadFile.fulfilled, (state, action) => {
         state.items.unshift(action.payload);
+        state.count += 1;
       })
       .addCase(deleteFile.fulfilled, (state, action) => {
         state.items = state.items.filter((file) => file.id !== action.payload);
+        state.count -= 1;
       })
       .addCase(updateFile.fulfilled, (state, action) => {
         const index = state.items.findIndex((file) => file.id === action.payload.id);

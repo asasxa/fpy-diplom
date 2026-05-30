@@ -4,7 +4,7 @@ import { fetchUsers, deleteUser, updateAdminStatus, User } from '../store/slices
 
 export const AdminPage = () => {
   const { items, status, error } = useAppSelector(state => state.users);
-  const currentUsername = useAppSelector(state => (state.auth as any).username || '');
+  const currentUsername = useAppSelector(state => state.auth.username || '');
   const dispatch = useAppDispatch();
 
   useEffect(() => { dispatch(fetchUsers()); }, [dispatch]);

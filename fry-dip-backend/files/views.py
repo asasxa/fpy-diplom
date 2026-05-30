@@ -9,6 +9,7 @@ from django.utils import timezone
 from rest_framework import generics, permissions, status, views
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.pagination import PageNumberPagination
 from .models import File
 from .serializers import FileSerializer, FileUploadSerializer, FileUpdateSerializer
 
@@ -23,13 +24,15 @@ class IsFileOwnerOrAdmin(permissions.BasePermission):
 class FileListView(generics.ListAPIView):
     serializer_class = FileSerializer
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class = FilePagination
 
     def get_queryset(self):
-        qs = File.objects.select_related('owner')
+        qs = File.objects.select_related('owner').filter(owner=self.request.user)
         if self.request.user.is_admin:
             owner_id = self.request.query_params.get('owner_id')
-            return qs.filter(owner_id=owner_id) if owner_id else qs
-        return qs.filter(owner=self.request.user)
+            if owner_id:
+                qs = File.objects.filter(owner_id=owner_id)
+        return qs.order_by('-uploaded_at')
 
     def get_serializer_context(self):
         return {'request': self.request}
